@@ -78,6 +78,13 @@ class Table:
     def get_columns(self):
         return self.columns
 
+    def serialize(self):
+        json_data = {
+            'table_name': self.table_name,
+            'columns': [column.__dict__ for column in self.columns]
+        }
+        return json_data
+
 
 class DB:
     def __init__(self, name: str, tables: Table = None):
@@ -88,10 +95,18 @@ class DB:
         else:
             self.tables = []
 
+    def serialize(self):
+        json_data = {'db_name': self.name}
+        json_data['tables'] = []
+        for table in self.tables:
+            table_dict = {'table_name': table.table_name}
+            json_data['tables'].append(table_dict)
+        return json_data
+
 
 class DBManager:
     def __init__(self):
-        self.db = None
+        self.db = DB('')
         self.location = None
 
     def __load_columns(self, columns: List[Column]):
@@ -157,8 +172,9 @@ class DBManager:
         try:
             json_data = self.__get_db_data()
             json.dump(json_data, open(self.location, "w+"))
+            return json_data, location
         except Exception as e:
-            print(e)
+            return e
 
     def load_db(self, location: str):
         location = Path(location)
@@ -179,24 +195,3 @@ class DBManager:
 
     def delete_db(self):
         os.remove(self.location)
-
-
-# db = DBManager()
-# db.create_db('new_db')
-# db.load_db('D:\\Дз\\IT\\new_db.json')
-# db.add_table('User')
-# table = db.get_table('User')
-# table.add_column('first_name', 'str', False)
-# table.add_column('last_name', 'str', False)
-# table.add_column('phone', 'int', True)
-# db.add_table('Company')
-# table = db.get_table('Company')
-# table.add_column('name', 'int', True)
-# db.save_db()
-# table = db.get_table('User')
-# table.add_row({'first_name': 'Jake', 'last_name': 'Dog', 'phone': None})
-# table.add_row({'first_name': 'Dima', 'last_name': 'Teltsov', 'phone': 12345})
-# db.save_db()
-# table = db.get_table('Company')
-# table.rename_table('Corp')
-# db.save_db()
