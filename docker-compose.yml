@@ -6,5 +6,6 @@ services:
     volumes:
       - .:/api:delegated
     ports:
-      - "8080:8080"
-    command: python main.py
+      - "8000:8000"
+      - "8001:8001"
+    command: adev runserver ./api/app.py

@@ -1,4 +1,4 @@
-from views import db_list
+from .views import db_list
 
 
 def init_routes(app):
