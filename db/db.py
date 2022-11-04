@@ -78,13 +78,6 @@ class Table:
     def get_columns(self):
         return self.columns
 
-    def serialize(self):
-        json_data = {
-            'table_name': self.table_name,
-            'columns': [column.__dict__ for column in self.columns]
-        }
-        return json_data
-
 
 class DB:
     def __init__(self, name: str, tables: Table = None):
@@ -94,14 +87,6 @@ class DB:
             self.tables = tables
         else:
             self.tables = []
-
-    def serialize(self):
-        json_data = {'db_name': self.name}
-        json_data['tables'] = []
-        for table in self.tables:
-            table_dict = {'table_name': table.table_name}
-            json_data['tables'].append(table_dict)
-        return json_data
 
 
 class DBManager:
@@ -139,7 +124,9 @@ class DBManager:
         if self.get_table(table_name):
             print('There is alredy table with name {}'.format(table_name))
             return False
-        self.db.tables.append(Table(table_name))
+        table = Table(table_name)
+        self.db.tables.append(table)
+        return table
 
     def delete_table(self, table_name: str):
         table = self.get_table(table_name)

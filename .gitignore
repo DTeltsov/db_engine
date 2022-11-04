@@ -132,7 +132,7 @@ ENV/
 env.bak/
 venv.bak/
 *.json
-db/db_paths.json
+
 
 # Spyder project settings
 .spyderproject

@@ -3,6 +3,12 @@ import os
 import json
 
 
+def check_db(db_name, conn):
+    if conn.db.name != db_name:
+        location = db_name + '.json'
+        conn.load_db(location)
+
+
 async def load_db_paths():
     if os.path.exists('db/db_paths.json'):
         json_data = json.load(open('db/db_paths.json'))
@@ -37,8 +43,6 @@ async def delete_db_path(db_name):
 async def load_db(db_name, conn):
     location = db_name + '.json'
     conn.load_db(location)
-    response = conn.db.serialize()
-    return response
 
 
 async def create_db(db_name, conn):
@@ -53,12 +57,29 @@ async def remove_db(db_name, conn):
 
 
 async def load_table(db_name, db_table, conn):
-    if conn.db.name != db_name:
-        location = db_name + '.json'
-        conn.load_db(location)
+    check_db(db_name, conn)
     table = conn.get_table(db_table)
-    response = table.serialize()
+    return table
+
+
+async def create_table(db_name, table_name, conn):
+    check_db(db_name, conn)
+    response = conn.add_table(table_name)
+    conn.save_db()
     return response
+
+
+async def remove_table(db_name, table_name, conn):
+    check_db(db_name, conn)
+    conn.delete_table(table_name)
+    conn.save_db()
+
+
+async def create_column(db_name, table_name, column_name, attr, is_null, conn):
+    check_db(db_name, conn)
+    table = conn.get_table(table_name)
+    table.add_column(column_name, attr, is_null)
+    conn.save_db()
 
 
 def setup_db(app):
