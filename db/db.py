@@ -3,6 +3,7 @@ import os
 from pydoc import locate
 from typing import List
 from pathlib import Path
+import numpy as np
 
 
 class Column:
@@ -30,6 +31,21 @@ class Table:
             self.rows = tab_rows
         else:
             self.rows = []
+
+    @staticmethod
+    def validate_value(column, value):
+        if column.column_attr not in ['color', 'colorInvl']:
+            if ((type(value) != locate(column.column_attr)) or
+                        (not value and not column.is_null)):
+                raise TypeError
+        else:
+            value = np.array(value)
+            if value.shape[0] != 3:
+                raise TypeError
+            elif value.ndim == 1 and column.column_attr == 'colorInvl':
+                raise TypeError
+            elif value.ndim == 2 and column.column_attr == 'color':
+                raise TypeError
 
     def update_table(self, table_name: str = None):
         if table_name:
@@ -59,6 +75,8 @@ class Table:
         self.columns.remove(column)
         for row in self.rows:
             del row[column_index]
+            if not row:
+                self.rows.remove(row)
 
     def update_column(self, column_name, name, attr, is_null):
         column = self.get_column(column_name)
@@ -76,31 +94,21 @@ class Table:
         values = []
         for key, value in row.items():
             column = self.get_column(key)
-            if ((type(value) != locate(column.column_attr)) and
-                    (not value and not column.is_null)):
-                print(
-                    '{0} - wrong type for column {1}. Must be {2}'.format(
-                        value,
-                        column.column_name,
-                        column.column_attr
-                        )
-                    )
-                break
-            elif not value and not column.is_null:
-                print(
-                    'Column {} can not be Null'.format(
-                        column.column_name
-                        )
-                    )
-                break
-            else:
-                values.append(value)
+            if not column:
+                raise TypeError
+            self.validate_value(column, value)
+            values.append(value)
         self.rows.append(values)
 
     def delete_row(self, row_index):
         self.rows.remove(row_index)
 
-    def update_row(self, row_index, values):
+    def update_row(self, row_index, row):
+        values = []
+        for key, value in row.items():
+            column = self.get_column(key)
+            self.validate_value(column, value)
+            values.append(value)
         self.rows[row_index] = values
 
 

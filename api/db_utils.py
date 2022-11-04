@@ -75,10 +75,52 @@ async def remove_table(db_name, table_name, conn):
     conn.save_db()
 
 
+async def update_table(db_name, table_name, name, conn):
+    check_db(db_name, conn)
+    table = conn.get_table(table_name)
+    table.update_table(name)
+    conn.save_db()
+
+
 async def create_column(db_name, table_name, column_name, attr, is_null, conn):
     check_db(db_name, conn)
     table = conn.get_table(table_name)
     table.add_column(column_name, attr, is_null)
+    conn.save_db()
+
+
+async def remove_column(db_name, table_name, column_name, conn):
+    check_db(db_name, conn)
+    table = conn.get_table(table_name)
+    table.delete_column(column_name)
+    conn.save_db()
+
+
+async def update_column(db_name, table_name, column_name, name, attr, is_null, conn):
+    check_db(db_name, conn)
+    table = conn.get_table(table_name)
+    table.update_column(column_name, name, attr, is_null)
+    conn.save_db()
+
+
+async def create_row(db_name, table_name, values, conn):
+    check_db(db_name, conn)
+    table = conn.get_table(table_name)
+    table.add_row(values)
+    conn.save_db()
+
+
+async def remove_row(db_name, table_name, row_index, conn):
+    check_db(db_name, conn)
+    table = conn.get_table(table_name)
+    table.delete_row(row_index)
+    conn.save_db()
+
+
+async def update_row(db_name, table_name, row_index, values, conn):
+    check_db(db_name, conn)
+    table = conn.get_table(table_name)
+    table.update_row(row_index, values)
     conn.save_db()
 
 
