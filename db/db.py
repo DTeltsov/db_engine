@@ -40,6 +40,34 @@ class Table:
             if column.column_name == column_name:
                 return column
 
+    def delete_column(self, column_name: str):
+        column = self.get_column(column_name)
+        column_index = self.columns.index(column)
+        self.columns.remove(column)
+        for row in self.rows:
+            del row[column_index]
+
+    def update_column(self, column_name, name, attr, is_null):
+        column = self.get_column(column_name)
+        column.column_name = name
+        column.column_attr = attr
+        column.is_null = is_null
+
+    def get_rows(self):
+        return self.rows
+
+    def get_row(self, row_index):
+        return self.rows[row_index]
+
+    def add_row(self, values):
+        self.rows.append(values)
+
+    def delete_row(self, row_index):
+        self.rows.remove(row_index)
+
+    def update_row(self, row_index, values):
+        self.rows[row_index] = values
+
     def add_column(self, column_name: str, attr: str, is_null: bool):
         if self.get_column(column_name):
             print('There is alredy column with name {0} in table {1}'.format(
