@@ -1,0 +1,30 @@
+tags:
+- Table
+summary: Put table
+produces:
+- application/json
+parameters:
+- in: path
+  name: db_name
+  required: true
+  schema:
+    type: "string"
+  description: Name of database
+- in: path
+  name: tabel_name
+  required: true
+  schema:
+    type: "string"
+  description: Name of table
+- in: body
+  name: body
+  required: true
+  schema:
+    type: object
+    properties:
+      name:
+        type: "string"
+  description: Name of table
+responses:
+  "201":
+    description: successful operation

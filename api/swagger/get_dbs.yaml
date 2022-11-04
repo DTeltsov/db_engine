@@ -1,0 +1,8 @@
+tags:
+- Database
+summary: View list of databases
+produces:
+- application/json
+responses:
+  "200":
+    description: successful operation

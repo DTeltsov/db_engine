@@ -1,0 +1,40 @@
+tags:
+- Column
+summary: Put column
+produces:
+- application/json
+parameters:
+- in: path
+  name: db_name
+  required: true
+  schema:
+    type: "string"
+  description: Name of database
+- in: path
+  name: tabel_name
+  required: true
+  schema:
+    type: "string"
+  description: Name of table
+- in: path
+  name: column_name
+  required: true
+  schema:
+    type: "string"
+  description: Name of column
+- in: body
+  name: body
+  required: true
+  schema:
+    type: object
+    properties:
+      name:
+        type: "string"
+      attr:
+        type: "string"
+      is_null:
+        type: boolean
+  description: Name of table
+responses:
+  "201":
+    description: successful operation
