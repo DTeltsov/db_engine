@@ -1,0 +1,18 @@
+tags:
+- Database
+summary: Create database
+produces:
+- application/json
+parameters:
+- in: body
+  name: body
+  required: true
+  schema:
+    type: object
+    properties:
+      name:
+        type: "string"
+  description: Name of database
+responses:
+  "201":
+    description: successful operation
