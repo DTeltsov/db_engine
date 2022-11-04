@@ -31,14 +31,27 @@ class Table:
         else:
             self.rows = []
 
-    def rename_table(self, table_name: str = None):
+    def update_table(self, table_name: str = None):
         if table_name:
             self.table_name = table_name
+
+    def get_columns(self):
+        return self.columns
 
     def get_column(self, column_name: str):
         for column in self.columns:
             if column.column_name == column_name:
                 return column
+
+    def add_column(self, column_name: str, attr: str, is_null: bool):
+        if self.get_column(column_name):
+            print('There is alredy column with name {0} in table {1}'.format(
+                column_name,
+                self.table_name
+                )
+            )
+            return False
+        self.columns.append(Column(column_name, attr, is_null))
 
     def delete_column(self, column_name: str):
         column = self.get_column(column_name)
@@ -58,25 +71,6 @@ class Table:
 
     def get_row(self, row_index):
         return self.rows[row_index]
-
-    def add_row(self, values):
-        self.rows.append(values)
-
-    def delete_row(self, row_index):
-        self.rows.remove(row_index)
-
-    def update_row(self, row_index, values):
-        self.rows[row_index] = values
-
-    def add_column(self, column_name: str, attr: str, is_null: bool):
-        if self.get_column(column_name):
-            print('There is alredy column with name {0} in table {1}'.format(
-                column_name,
-                self.table_name
-                )
-            )
-            return False
-        self.columns.append(Column(column_name, attr, is_null))
 
     def add_row(self, row: dict):
         values = []
@@ -103,8 +97,11 @@ class Table:
                 values.append(value)
         self.rows.append(values)
 
-    def get_columns(self):
-        return self.columns
+    def delete_row(self, row_index):
+        self.rows.remove(row_index)
+
+    def update_row(self, row_index, values):
+        self.rows[row_index] = values
 
 
 class DB:
