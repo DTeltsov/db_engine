@@ -1,3 +1,8 @@
+def serialize_dbs(dbs):
+    json_data = [{'name': i['name']} for i in dbs['dbs']]
+    return json_data
+
+
 def serialize_db(db):
     json_data = {'db_name': db.name}
     json_data['tables'] = []

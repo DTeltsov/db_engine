@@ -4,6 +4,7 @@ from pydoc import locate
 from typing import List
 from pathlib import Path
 import numpy as np
+from .exceptions import InvalidValueError, AlredyExistsError, NotFoundError
 
 
 class Column:
@@ -37,15 +38,15 @@ class Table:
         if column.column_attr not in ['color', 'colorInvl']:
             if ((type(value) != locate(column.column_attr)) or
                         (not value and not column.is_null)):
-                raise TypeError
+                raise InvalidValueError(value)
         else:
             value = np.array(value)
             if value.shape[0] != 3:
-                raise TypeError
+                raise InvalidValueError(value)
             elif value.ndim == 1 and column.column_attr == 'colorInvl':
-                raise TypeError
+                raise InvalidValueError(value)
             elif value.ndim == 2 and column.column_attr == 'color':
-                raise TypeError
+                raise InvalidValueError(value)
 
     def update_table(self, table_name: str = None):
         if table_name:
@@ -58,15 +59,11 @@ class Table:
         for column in self.columns:
             if column.column_name == column_name:
                 return column
+        raise NotFoundError(column_name)
 
     def add_column(self, column_name: str, attr: str, is_null: bool):
         if self.get_column(column_name):
-            print('There is alredy column with name {0} in table {1}'.format(
-                column_name,
-                self.table_name
-                )
-            )
-            return False
+            raise AlredyExistsError(column_name)
         self.columns.append(Column(column_name, attr, is_null))
 
     def delete_column(self, column_name: str):
@@ -88,25 +85,31 @@ class Table:
         return self.rows
 
     def get_row(self, row_index):
-        return self.rows[row_index]
+        try:
+            return self.rows[row_index]
+        except IndexError:
+            raise NotFoundError(row_index)
 
     def add_row(self, row: dict):
         values = []
         for key, value in row.items():
             column = self.get_column(key)
             if not column:
-                raise TypeError
+                raise NotFoundError(column)
             self.validate_value(column, value)
             values.append(value)
         self.rows.append(values)
 
     def delete_row(self, row_index):
-        self.rows.remove(row_index)
+        row = self.get_row(row_index)
+        self.rows.remove(row)
 
     def update_row(self, row_index, row):
         values = []
         for key, value in row.items():
             column = self.get_column(key)
+            if not column:
+                raise NotFoundError(column)
             self.validate_value(column, value)
             values.append(value)
         self.rows[row_index] = values
@@ -152,11 +155,11 @@ class DBManager:
         for table in self.db.tables:
             if table.table_name == table_name:
                 return table
+        raise NotFoundError(table_name)
 
     def add_table(self, table_name: str):
         if self.get_table(table_name):
-            print('There is alredy table with name {}'.format(table_name))
-            return False
+            raise AlredyExistsError(table_name)
         table = Table(table_name)
         self.db.tables.append(table)
         return table
@@ -192,7 +195,7 @@ class DBManager:
         try:
             json_data = self.__get_db_data()
             json.dump(json_data, open(self.location, "w+"))
-            return json_data, location
+            return self.db
         except Exception as e:
             return e
 

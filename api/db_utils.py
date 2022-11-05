@@ -46,9 +46,9 @@ async def load_db(db_name, conn):
 
 
 async def create_db(db_name, conn):
-    response = conn.create_db(db_name)
+    db = conn.create_db(db_name)
     await add_db_path(db_name)
-    return response
+    return db
 
 
 async def remove_db(db_name, conn):
@@ -64,9 +64,9 @@ async def load_table(db_name, db_table, conn):
 
 async def create_table(db_name, table_name, conn):
     check_db(db_name, conn)
-    response = conn.add_table(table_name)
+    table = conn.add_table(table_name)
     conn.save_db()
-    return response
+    return table
 
 
 async def remove_table(db_name, table_name, conn):
