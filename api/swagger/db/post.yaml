@@ -15,4 +15,10 @@ parameters:
   description: Name of database
 responses:
   "201":
-    description: successful operation
+    description: Successfully Created
+  "404":
+    description: Not Found
+  "400":
+    description: Invalid Request
+  "500":
+    description: Internal Server Error

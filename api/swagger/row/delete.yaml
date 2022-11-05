@@ -25,4 +25,8 @@ parameters:
   minimum: 0
 responses:
   "200":
-    description: successful operation
+    description: Successful Operation
+  "404":
+    description: Not Found
+  "500":
+    description: Internal Server Error
