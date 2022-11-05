@@ -16,6 +16,8 @@ def serialize_table(table):
     json_data = {
             'table_name': table.table_name,
             'columns': [column.__dict__ for column in table.columns],
-            'rows': [{'pk': i, 'data': row} for i, row in enumerate(table.rows)]
+            'rows': [
+                {'pk': i, 'data': row} for i, row in enumerate(table.rows)
+            ]
         }
     return json_data

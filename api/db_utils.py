@@ -1,6 +1,7 @@
 from db.db import DBManager
 import os
 import json
+from db.exceptions import InvalidValueError
 
 
 def check_db(db_name, conn):
@@ -45,13 +46,21 @@ async def load_db(db_name, conn):
     conn.load_db(location)
 
 
-async def create_db(db_name, conn):
+async def create_db(data, conn):
+    try:
+        db_name = data['name']
+    except KeyError:
+        raise InvalidValueError(data)
     db = conn.create_db(db_name)
     await add_db_path(db_name)
     return db
 
 
-async def remove_db(db_name, conn):
+async def remove_db(data, conn):
+    try:
+        db_name = data['name']
+    except KeyError:
+        raise InvalidValueError(data)
     conn.delete_db(db_name)
     await delete_db_path(db_name)
 
@@ -62,8 +71,12 @@ async def load_table(db_name, db_table, conn):
     return table
 
 
-async def create_table(db_name, table_name, conn):
+async def create_table(db_name, data, conn):
     check_db(db_name, conn)
+    try:
+        table_name = data['name']
+    except KeyError:
+        raise InvalidValueError(data)
     table = conn.add_table(table_name)
     conn.save_db()
     return table
@@ -75,17 +88,29 @@ async def remove_table(db_name, table_name, conn):
     conn.save_db()
 
 
-async def update_table(db_name, table_name, name, conn):
+async def update_table(db_name, table_name, data, conn):
     check_db(db_name, conn)
     table = conn.get_table(table_name)
+    try:
+        name = data['name']
+    except KeyError:
+        raise InvalidValueError(data)
     table.update_table(name)
     conn.save_db()
 
 
-async def create_column(db_name, table_name, column_name, attr, is_null, conn):
+async def create_column(db_name, table_name, data, conn):
     check_db(db_name, conn)
     table = conn.get_table(table_name)
-    table.add_column(column_name, attr, is_null)
+    try:
+        name, attr, is_null = data['name'], data['attr'], data['is_null']
+    except KeyError:
+        raise InvalidValueError(data)
+    try:
+        default_value = data['default_value']
+    except KeyError:
+        default_value = None
+    table.add_column(name, attr, is_null, default_value)
     conn.save_db()
 
 
@@ -96,10 +121,14 @@ async def remove_column(db_name, table_name, column_name, conn):
     conn.save_db()
 
 
-async def update_column(db_name, table_name, column_name, name, attr, is_null, conn):
+async def update_column(db_name, table_name, data, conn):
     check_db(db_name, conn)
     table = conn.get_table(table_name)
-    table.update_column(column_name, name, attr, is_null)
+    try:
+        name, attr, is_null = data['name'], data['attr'], data['is_null']
+    except KeyError:
+        raise InvalidValueError(data)
+    table.update_column(name, name, attr, is_null)
     conn.save_db()
 
 

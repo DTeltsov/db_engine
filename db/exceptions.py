@@ -26,3 +26,15 @@ class AlredyExistsError(Exception):
 
     def __str__(self):
         return f'{self.item} {self.message}'
+
+
+class IsNullColumnError(Exception):
+    def __init__(
+        self,
+        message="Can't add column with is_null:false. Add default value"
+    ):
+        self.message = message
+        super().__init__(self.message)
+
+    def __str__(self):
+        return f'{self.message}'

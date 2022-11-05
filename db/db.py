@@ -4,7 +4,12 @@ from pydoc import locate
 from typing import List
 from pathlib import Path
 import numpy as np
-from .exceptions import InvalidValueError, AlredyExistsError, NotFoundError
+from .exceptions import (
+    InvalidValueError,
+    AlredyExistsError,
+    NotFoundError,
+    IsNullColumnError
+)
 
 
 class Column:
@@ -37,16 +42,18 @@ class Table:
     def validate_value(column, value):
         if column.column_attr not in ['color', 'colorInvl']:
             if ((type(value) != locate(column.column_attr)) or
-                        (not value and not column.is_null)):
+                    (not value and not column.is_null)):
                 raise InvalidValueError(value)
         else:
             value = np.array(value)
             if value.shape[0] != 3:
-                raise InvalidValueError(value)
+                raise InvalidValueError(list(value))
             elif value.ndim == 1 and column.column_attr == 'colorInvl':
-                raise InvalidValueError(value)
+                raise InvalidValueError(list(value))
             elif value.ndim == 2 and column.column_attr == 'color':
-                raise InvalidValueError(value)
+                raise InvalidValueError(list(value))
+            elif any(i > 255 or i < 0 for i in value):
+                raise InvalidValueError(list(value))
 
     def update_table(self, table_name: str = None):
         if table_name:
@@ -61,10 +68,29 @@ class Table:
                 return column
         raise NotFoundError(column_name)
 
-    def add_column(self, column_name: str, attr: str, is_null: bool):
-        if self.get_column(column_name):
+    def add_column(
+        self,
+        column_name: str,
+        attr: str,
+        is_null: bool,
+        default_value
+    ):
+        try:
+            self.get_column(column_name)
             raise AlredyExistsError(column_name)
-        self.columns.append(Column(column_name, attr, is_null))
+        except NotFoundError:
+            if not is_null and self.rows and not default_value:
+                raise IsNullColumnError
+            elif not is_null and self.rows and default_value:
+                column = Column(column_name, attr, is_null)
+                self.columns.append(column)
+                for row in self.get_rows():
+                    self.validate_value(column, default_value)
+                    row.append(default_value)
+            elif ((is_null and not self.rows) or
+                    (not is_null)):
+                column = Column(column_name, attr, is_null)
+                self.columns.append(column)
 
     def delete_column(self, column_name: str):
         column = self.get_column(column_name)
@@ -158,11 +184,13 @@ class DBManager:
         raise NotFoundError(table_name)
 
     def add_table(self, table_name: str):
-        if self.get_table(table_name):
+        try:
+            self.get_table(table_name)
             raise AlredyExistsError(table_name)
-        table = Table(table_name)
-        self.db.tables.append(table)
-        return table
+        except NotFoundError:
+            table = Table(table_name)
+            self.db.tables.append(table)
+            return table
 
     def delete_table(self, table_name: str):
         table = self.get_table(table_name)
@@ -207,7 +235,7 @@ class DBManager:
             self.db = DB(json_data['db_name'], tables)
             self.location = location
         else:
-            print('There is no db. Please enter valid path')
+            raise NotFoundError(str(location).replace('.json', ''))
 
     def save_db(self):
         try:

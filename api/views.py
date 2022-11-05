@@ -55,8 +55,12 @@ async def get_db(request):
     data = serialize_db(conn.db)
     tables_hrefs = [{
             'self': {'href': str(request.url) + '/table/' + i['table_name']},
-            'delete_table': {'href': str(request.url) + '/table/' + i['table_name']},
-            'put_table': {'href': str(request.url) + '/table/' + i['table_name']}
+            'delete_table': {
+                'href': str(request.url) + '/table/' + i['table_name']
+            },
+            'put_table': {
+                'href': str(request.url) + '/table/' + i['table_name']
+            }
         } for i in data['tables']]
     response = {
         'status': 'ok',
@@ -77,8 +81,8 @@ async def get_db(request):
 async def add_db(request):
     conn = request.app['db']
     data = await request.json()
+    db = await create_db(data, conn)
     name = data['name']
-    db = await create_db(name, conn)
 
     data = serialize_db(db)
     response = {
@@ -119,8 +123,12 @@ async def get_table(request):
 
     data = serialize_table(data)
     columns_hrefs = [{
-        'delete_column': {'href': str(request.url) + '/column/' + i['column_name']},
-        'put_column': {'href': str(request.url) + '/column/' + i['column_name']}
+        'delete_column': {
+            'href': str(request.url) + '/column/' + i['column_name']
+        },
+        'put_column': {
+            'href': str(request.url) + '/column/' + i['column_name']
+        }
         } for i in data['columns']]
     rows_hrefs = [{
         'delete_row': {'href': str(request.url) + '/row/' + str(i['pk'])},
@@ -149,10 +157,10 @@ async def add_table(request):
     conn = request.app['db']
     data = await request.json()
     db = request.match_info['db_name']
-    table = data['name']
-    data = await create_table(db, table, conn)
+    data = await create_table(db, data, conn)
 
     data = serialize_table(data)
+    table = data['table_name']
     response = {
         'status': 'ok',
         'data': data,
@@ -189,8 +197,7 @@ async def put_table(request):
     db = request.match_info['db_name']
     table = request.match_info['table_name']
     data = await request.json()
-    name = data['name']
-    await update_table(db, table, name, conn)
+    await update_table(db, table, data, conn)
 
     response = {
         'status': 'ok',
@@ -208,8 +215,7 @@ async def add_column(request):
     db = request.match_info['db_name']
     table = request.match_info['table_name']
     data = await request.json()
-    name, attr, is_null = data['name'], data['attr'], data['is_null']
-    await create_column(db, table, name, attr, is_null, conn)
+    await create_column(db, table, data, conn)
 
     response = {
         'status': 'ok',
@@ -232,7 +238,9 @@ async def delete_column(request):
     response = {
         'status': 'ok',
         'links': {
-            'table': {'href': str(request.url).replace('/column/' + column, '')}
+            'table': {
+                'href': str(request.url).replace('/column/' + column, '')
+            }
         }}
 
     return web.json_response(response, status=201)
@@ -246,13 +254,16 @@ async def put_column(request):
     table = request.match_info['table_name']
     column = request.match_info['column_name']
     data = await request.json()
-    name, attr, is_null = data['name'], data['attr'], data['is_null']
-    await update_column(db, table, column, name, attr, is_null, conn)
+    await update_column(db, table, column, data, conn)
+
     response = {
         'status': 'ok',
         'links': {
-            'table': {'href': str(request.url).replace('/column/' + column, '')}
+            'table': {
+                'href': str(request.url).replace('/column/' + column, '')
+            }
         }}
+
     return web.json_response(response, status=201)
 
 
@@ -264,11 +275,13 @@ async def add_row(request):
     db = request.match_info['db_name']
     table = request.match_info['table_name']
     await create_row(db, table, data, conn)
+
     response = {
         'status': 'ok',
         'links': {
             'table': {'href': str(request.url).replace('/row', '')}
         }}
+
     return web.json_response(response, status=201)
 
 
@@ -280,11 +293,13 @@ async def delete_row(request):
     table = request.match_info['table_name']
     row = int(request.match_info['row_pk'])
     await remove_row(db, table, row, conn)
+
     response = {
         'status': 'ok',
         'links': {
             'table': {'href': str(request.url).replace('/row/' + str(row), '')}
         }}
+
     return web.json_response(response, status=201)
 
 
@@ -297,9 +312,11 @@ async def put_row(request):
     row = int(request.match_info['row_pk'])
     data = await request.json()
     await update_row(db, table, row, data, conn)
+
     response = {
         'status': 'ok',
         'links': {
             'table': {'href': str(request.url).replace('/row/' + str(row), '')}
         }}
+
     return web.json_response(response, status=201)

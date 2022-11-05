@@ -17,8 +17,13 @@ def handle_json_error(func):
             return web.json_response(
                 {'status': 'failed', 'reason': str(e)}, status=400
             )
-        except Exception:
+        except Exception as e:
             return web.json_response(
-                {'status': 'failed', 'reason': 'Internal Server Error'}, status=500
+                {
+                    'status': 'failed',
+                    'reason': 'Internal Server Error',
+                    'desc': str(e)
+                },
+                status=500
             )
     return handler
