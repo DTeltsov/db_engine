@@ -38,3 +38,15 @@ class IsNullColumnError(Exception):
 
     def __str__(self):
         return f'{self.message}'
+
+
+class InvalidUnionError(Exception):
+    def __init__(
+        self,
+        message="Can't union tables with different amount of columns"
+    ):
+        self.message = message
+        super().__init__(self.message)
+
+    def __str__(self):
+        return f'{self.message}'

@@ -8,7 +8,8 @@ from .exceptions import (
     InvalidValueError,
     AlredyExistsError,
     NotFoundError,
-    IsNullColumnError
+    IsNullColumnError,
+    InvalidUnionError
 )
 
 
@@ -210,6 +211,17 @@ class DBManager:
 
     def get_tables(self):
         return self.db.tables
+
+    def union_tables(self, table_name1, table_name2):
+        table1 = self.get_table(table_name1)
+        table2 = self.get_table(table_name2)
+        if len(table1.columns) == len(table2.columns):
+            result_columns = table1.columns
+            result_rows = table1.rows + table2.rows
+            result_table = Table('result', result_columns, result_rows)
+            return result_table
+        else:
+            raise InvalidUnionError
 
     def create_db(
         self,

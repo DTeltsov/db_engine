@@ -8,6 +8,7 @@ from .db_utils import (
     create_table,
     remove_table,
     update_table,
+    union_tables,
     create_column,
     remove_column,
     update_column,
@@ -22,7 +23,7 @@ from .utils import handle_json_error
 
 @swagger_path("api/swagger/db/get_dbs.yaml")
 @handle_json_error
-async def get_dbs(request):
+async def get_dbs_view(request):
     dbs = await load_db_paths()
 
     data = serialize_dbs(dbs)
@@ -47,7 +48,7 @@ async def get_dbs(request):
 
 @swagger_path("api/swagger/db/get.yaml")
 @handle_json_error
-async def get_db(request):
+async def get_db_view(request):
     conn = request.app['db']
     db = request.match_info['db_name']
     await load_db(db, conn)
@@ -78,7 +79,7 @@ async def get_db(request):
 
 @swagger_path("api/swagger/db/post.yaml")
 @handle_json_error
-async def add_db(request):
+async def add_db_view(request):
     conn = request.app['db']
     data = await request.json()
     db = await create_db(data, conn)
@@ -99,7 +100,7 @@ async def add_db(request):
 
 @swagger_path("api/swagger/db/delete.yaml")
 @handle_json_error
-async def delete_db(request):
+async def delete_db_view(request):
     conn = request.app['db']
     name = request.match_info['db_name']
     await remove_db(name, conn)
@@ -115,7 +116,7 @@ async def delete_db(request):
 
 @swagger_path("api/swagger/table/get.yaml")
 @handle_json_error
-async def get_table(request):
+async def get_table_view(request):
     conn = request.app['db']
     db = request.match_info['db_name']
     table = request.match_info['table_name']
@@ -153,7 +154,7 @@ async def get_table(request):
 
 @swagger_path("api/swagger/table/post.yaml")
 @handle_json_error
-async def add_table(request):
+async def add_table_view(request):
     conn = request.app['db']
     data = await request.json()
     db = request.match_info['db_name']
@@ -175,7 +176,7 @@ async def add_table(request):
 
 @swagger_path("api/swagger/table/delete.yaml")
 @handle_json_error
-async def delete_table(request):
+async def delete_table_view(request):
     conn = request.app['db']
     db = request.match_info['db_name']
     table = request.match_info['table_name']
@@ -192,7 +193,7 @@ async def delete_table(request):
 
 @swagger_path("api/swagger/table/put.yaml")
 @handle_json_error
-async def put_table(request):
+async def put_table_view(request):
     conn = request.app['db']
     db = request.match_info['db_name']
     table = request.match_info['table_name']
@@ -208,9 +209,27 @@ async def put_table(request):
     return web.json_response(response, status=201)
 
 
+@swagger_path("api/swagger/table/union.yaml")
+@handle_json_error
+async def union_tables_view(request):
+    conn = request.app['db']
+    db = request.match_info['db_name']
+    table1 = request.match_info['table_name1']
+    table2 = request.match_info['table_name2']
+    result_table = await union_tables(db, table1, table2, conn)
+
+    data = serialize_table(result_table)
+    response = {
+        'status': 'ok',
+        'data': data
+    }
+
+    return web.json_response(response, status=201)
+
+
 @swagger_path("api/swagger/column/post.yaml")
 @handle_json_error
-async def add_column(request):
+async def add_column_view(request):
     conn = request.app['db']
     db = request.match_info['db_name']
     table = request.match_info['table_name']
@@ -228,7 +247,7 @@ async def add_column(request):
 
 @swagger_path("api/swagger/column/delete.yaml")
 @handle_json_error
-async def delete_column(request):
+async def delete_column_view(request):
     conn = request.app['db']
     db = request.match_info['db_name']
     table = request.match_info['table_name']
@@ -248,7 +267,7 @@ async def delete_column(request):
 
 @swagger_path("api/swagger/column/put.yaml")
 @handle_json_error
-async def put_column(request):
+async def put_column_view(request):
     conn = request.app['db']
     db = request.match_info['db_name']
     table = request.match_info['table_name']
@@ -269,7 +288,7 @@ async def put_column(request):
 
 @swagger_path("api/swagger/row/post.yaml")
 @handle_json_error
-async def add_row(request):
+async def add_row_view(request):
     conn = request.app['db']
     data = await request.json()
     db = request.match_info['db_name']
@@ -287,7 +306,7 @@ async def add_row(request):
 
 @swagger_path("api/swagger/row/delete.yaml")
 @handle_json_error
-async def delete_row(request):
+async def delete_row_view(request):
     conn = request.app['db']
     db = request.match_info['db_name']
     table = request.match_info['table_name']
@@ -305,7 +324,7 @@ async def delete_row(request):
 
 @swagger_path("api/swagger/row/delete.yaml")
 @handle_json_error
-async def put_row(request):
+async def put_row_view(request):
     conn = request.app['db']
     db = request.match_info['db_name']
     table = request.match_info['table_name']

@@ -1,6 +1,6 @@
 tags:
 - Table
-summary: Delete table
+summary: Union two Tables
 produces:
 - application/json
 parameters:
@@ -11,14 +11,22 @@ parameters:
     type: "string"
   description: Name of database
 - in: path
-  name: table_name
+  name: table_name1
   required: true
   schema:
     type: "string"
-  description: Name of table
+  description: Name of first table
+- in: path
+  name: table_name2
+  required: true
+  schema:
+    type: "string"
+  description: Name of second table
 responses:
   "200":
     description: Successful Operation
+  "400":
+    description: Invalid Request
   "404":
     description: Not Found
   "500":

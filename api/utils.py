@@ -1,6 +1,12 @@
 import asyncio
 from aiohttp import web
-from db.exceptions import NotFoundError, AlredyExistsError, InvalidValueError
+from db.exceptions import (
+    NotFoundError,
+    AlredyExistsError,
+    InvalidValueError,
+    InvalidUnionError,
+    IsNullColumnError
+)
 
 
 def handle_json_error(func):
@@ -13,7 +19,8 @@ def handle_json_error(func):
             return web.json_response(
                 {'status': 'failed', 'reason': str(e)}, status=404
             )
-        except (AlredyExistsError, InvalidValueError) as e:
+        except (AlredyExistsError, InvalidValueError,
+                IsNullColumnError, InvalidUnionError) as e:
             return web.json_response(
                 {'status': 'failed', 'reason': str(e)}, status=400
             )

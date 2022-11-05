@@ -99,6 +99,12 @@ async def update_table(db_name, table_name, data, conn):
     conn.save_db()
 
 
+async def union_tables(db_name, table_name1, table_name2, conn):
+    check_db(db_name, conn)
+    result_table = conn.union_tables(table_name1, table_name2)
+    return result_table
+
+
 async def create_column(db_name, table_name, data, conn):
     check_db(db_name, conn)
     table = conn.get_table(table_name)
