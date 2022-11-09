@@ -88,8 +88,8 @@ class Table:
                 for row in self.get_rows():
                     self.validate_value(column, default_value)
                     row.append(default_value)
-            elif ((is_null and not self.rows) or
-                    (not is_null)):
+            elif ((not is_null and not self.rows) or
+                    is_null):
                 column = Column(column_name, attr, is_null)
                 self.columns.append(column)
 
@@ -98,7 +98,10 @@ class Table:
         column_index = self.columns.index(column)
         self.columns.remove(column)
         for row in self.rows:
-            del row[column_index]
+            try:
+                del row[column_index]
+            except IndexError:
+                pass
             if not row:
                 self.rows.remove(row)
 
