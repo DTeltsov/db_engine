@@ -1,4 +1,7 @@
-aiohttp==3.8.1
+aiohttp
 aiohttp-devtools
 numpy
 aiohttp-swagger
+pytest
+pytest-mock
+pytest-aiohttp
