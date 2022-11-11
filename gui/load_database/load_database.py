@@ -18,10 +18,10 @@ class LoadDatabaseDialog(QtWidgets.QDialog, Ui_Dialog):
         self.selected = item.value
 
     def __load_local_db_paths(self):
-        if os.path.exists('db/db_paths.json'):
-            json_data = json.load(open('db/db_paths.json'))
+        if os.path.exists('D:\Дз\IT\db\db_paths.json'):
+            json_data = json.load(open('D:\Дз\IT\db\db_paths.json'))
         else:
-            path = os.path.expanduser('db/db_paths.json')
+            path = os.path.expanduser('D:\Дз\IT\db\db_paths.json')
             json_data = {'dbs': []}
             json.dump(json_data, open(path, "w+"))
         return json_data['dbs']
