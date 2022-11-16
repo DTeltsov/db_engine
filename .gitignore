@@ -183,6 +183,5 @@ cython_debug/
 # Ignore all local history of files
 .history
 .ionide
-*.ui
 
 # End of https://www.toptal.com/developers/gitignore/api/python,visualstudiocode

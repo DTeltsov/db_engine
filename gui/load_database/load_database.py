@@ -18,10 +18,11 @@ class LoadDatabaseDialog(QtWidgets.QDialog, Ui_Dialog):
         self.selected = item.value
 
     def __load_local_db_paths(self):
-        if os.path.exists('D:\Дз\IT\db\db_paths.json'):
-            json_data = json.load(open('D:\Дз\IT\db\db_paths.json'))
+        path = os.path.join('gui', 'db_paths.json')
+        if os.path.exists(path):
+            json_data = json.load(open(path))
         else:
-            path = os.path.expanduser('D:\Дз\IT\db\db_paths.json')
+            path = os.path.expanduser(path)
             json_data = {'dbs': []}
             json.dump(json_data, open(path, "w+"))
         return json_data['dbs']
@@ -39,7 +40,7 @@ class LoadDatabaseDialog(QtWidgets.QDialog, Ui_Dialog):
 
         for item in data:
             label = item['name']
-            record = [{'db': label, 'type': db_type}, label + '-' + db_type]
+            record = [{'db': label, 'db_type': db_type}, label + '-' + db_type]
             result.append(record)
 
         return result
@@ -63,7 +64,6 @@ class LoadDatabaseDialog(QtWidgets.QDialog, Ui_Dialog):
 
     def get_results(self):
         if self.exec_() == QtWidgets.QDialog.Accepted:
-            data = {}
             try:
                 data = self.selected
                 return data

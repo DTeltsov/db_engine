@@ -57,5 +57,5 @@ class Ui_Dialog(object):
         Dialog.setWindowTitle(_translate("Dialog", "Create database"))
         self.name_label.setText(_translate("Dialog", "Name of database:"))
         self.location_label.setText(_translate("Dialog", "Where database should be created ?"))
-        self.location_combobox.setItemText(0, _translate("Dialog", "Localy"))
-        self.location_combobox.setItemText(1, _translate("Dialog", "Remotly"))
+        self.location_combobox.setItemText(0, _translate("Dialog", "Local"))
+        self.location_combobox.setItemText(1, _translate("Dialog", "Remote"))
