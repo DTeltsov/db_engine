@@ -27,7 +27,7 @@ class LoadDatabaseDialog(QtWidgets.QDialog, Ui_Dialog):
             json.dump(json_data, open(path, "w+"))
         return json_data['dbs']
 
-    def __load_remote_db_paths(self):
+    def load_remote_db_paths(self):
         url = 'http://localhost:8000/api/dbs'
         response = r.get(url)
         if response.status_code == 200:
@@ -35,7 +35,7 @@ class LoadDatabaseDialog(QtWidgets.QDialog, Ui_Dialog):
             dbs = json_data['data']
             return dbs
 
-    def __format_data(self, data, db_type):
+    def format_data(self, data, db_type):
         result = []
 
         for item in data:
@@ -46,21 +46,23 @@ class LoadDatabaseDialog(QtWidgets.QDialog, Ui_Dialog):
         return result
 
     def __populate_db_list(self):
-        local_dbs = self.__load_local_db_paths()
-        remote_dbs = self.__load_remote_db_paths()
+        try:
+            local_dbs = self.__load_local_db_paths()
+            remote_dbs = self.load_remote_db_paths()
+            local_dbs = self.format_data(local_dbs, 'Local')
+            remote_dbs = self.format_data(remote_dbs, 'Remote')
 
-        local_dbs = self.__format_data(local_dbs, 'Local')
-        remote_dbs = self.__format_data(remote_dbs, 'Remote')
+            for db in local_dbs:
+                item = QtWidgets.QListWidgetItem(db[1])
+                item.value = db[0]
+                self.database_list.addItem(item)
 
-        for db in local_dbs:
-            item = QtWidgets.QListWidgetItem(db[1])
-            item.value = db[0]
-            self.database_list.addItem(item)
-
-        for db in remote_dbs:
-            item = QtWidgets.QListWidgetItem(db[1])
-            item.value = db[0]
-            self.database_list.addItem(item)
+            for db in remote_dbs:
+                item = QtWidgets.QListWidgetItem(db[1])
+                item.value = db[0]
+                self.database_list.addItem(item)
+        except (r.ConnectionError, TypeError):
+            pass
 
     def get_results(self):
         if self.exec_() == QtWidgets.QDialog.Accepted:

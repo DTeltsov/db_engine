@@ -69,6 +69,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         elif self.db_type == 'Remote':
             url = self.table + '/row/' + str(row)
             response = r.delete(url)
+            return response.status_code
 
     def add_column(self):
         w = NewColumnDialog()
@@ -204,7 +205,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     self.db = result['db']
                     self.__load_database()
 
-    def __get_tables(self):
+    def get_tables(self):
         if self.db_type == 'Local':
             tables = self.db.get_tables()
             tables = [[table.table_name, table.table_name] for table in tables]
@@ -226,7 +227,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def __populate_tables_list(self):
         self.table_list.clear()
-        tables = self.__get_tables()
+        tables = self.get_tables()
 
         for table in tables:
             item = QtWidgets.QListWidgetItem(table[1])
